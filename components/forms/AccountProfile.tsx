@@ -21,6 +21,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { updateUser } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
   user: {
@@ -36,8 +38,9 @@ interface Props {
 
 function AccountProfile({ user, btnTitle }: Props) {
   const [files, setFiles] = useState<File[]>([]);
-
   const { startUpload } = useUploadThing("media");
+  const router = useRouter();
+  const pathname = usePathname();
 
   const form = useForm({
     resolver: zodResolver(UserValidation),
@@ -83,6 +86,21 @@ function AccountProfile({ user, btnTitle }: Props) {
         values.profile_photo = imgRes[0].fileUrl;
       }
     }
+
+    await updateUser({
+      userId: user.id,
+      username: values.username,
+      name: values.name,
+      bio: values.bio,
+      image: values.profile_photo,
+      path: pathname,
+    });
+
+    if (pathname === "profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
+    }
   };
   return (
     <Form {...form}>
@@ -102,7 +120,7 @@ function AccountProfile({ user, btnTitle }: Props) {
                     alt="Profile Photo"
                     width={96}
                     height={96}
-                    className="rounded-full"
+                    className="object-cover object-left-top h-24 rounded-full"
                     priority
                   />
                 ) : (
