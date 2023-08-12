@@ -1,29 +1,29 @@
-"use server";
+'use server'
 
-import { revalidatePath } from "next/cache";
-import User from "../models/user.modal";
-import { connectToDB } from "../mongoose";
+import { revalidatePath } from 'next/cache'
+import User from '../models/user.modal'
+import { connectToDB } from '../mongoose'
 
 interface Params {
-  userId: string;
-  username: string;
-  name: string;
-  bio: string;
-  image: string;
-  path: string;
+  userId: string
+  username: string
+  name: string
+  bio: string
+  image: string
+  path: string
 }
 
 export async function updateUser({
   userId,
-  username,
-  name,
   bio,
-  image,
+  name,
   path,
+  username,
+  image,
 }: Params): Promise<void> {
-  connectToDB();
-
   try {
+    connectToDB()
+
     await User.findOneAndUpdate(
       { id: userId },
       {
@@ -31,29 +31,25 @@ export async function updateUser({
         name,
         bio,
         image,
-        onbroaded: true,
+        onboarded: true,
       },
       { upsert: true }
-    );
+    )
 
-    if (path === "/profile/edit") {
-      revalidatePath(path);
+    if (path === '/profile/edit') {
+      revalidatePath(path)
     }
   } catch (error: any) {
-    throw new Error(`Failed to create/update use: ${error.message}`);
+    throw new Error(`Failed to create/update user: ${error.message}`)
   }
 }
 
 export async function fetchUser(userId: string) {
   try {
-    connectToDB();
+    connectToDB()
 
-    return await User.findOne({ id: userId });
-    // .populate({
-    //   path: "communities",
-    //   model: Community,
-    // });
+    return await User.findOne({ id: userId })
   } catch (error: any) {
-    throw new Error(`Failed to fetch user: ${error.message}`);
+    throw new Error(`Failed to fetch user: ${error.message}`)
   }
 }
